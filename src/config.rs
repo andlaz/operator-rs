@@ -18,6 +18,10 @@ pub trait Configuration {
     // TODO: Not sure if I need the role_name here
     // TODO: We need to pass in the existing config from parents to run validation checks and we should probably also pass in a "final" parameter or have another "finalize" method callback
     //  one for each role group, one for each role and one for all of it...
+    fn cluster_conf(&self, resource: &Self::Configurable) -> UserConfigAndOverrides;
+    fn role_conf(&self, resource: &Self::Configurable, role: &str) -> UserConfigAndOverrides;
+    fn group_conf(&self, resource: &Self::Configurable, role: &str, role_group) -> UserConfigAndOverrides;
+
     fn compute_env(
         &self,
         resource: &Self::Configurable,
@@ -36,10 +40,37 @@ pub trait Configuration {
         role_name: &str,
         file: &str,
     ) -> Result<HashMap<String, String>, ConfigError>;
+}
 
-    // role_name -> Vec<PropertyNameKind>b
-    // TODO: Not sure if we need/want this
-    fn config_information() -> HashMap<String, (PropertyNameKind, String)>;
+fn merge(cluster: UserConfigAndOverrides, role: UserConfigAndOverrides, group: UserConfigAndOverrides) -> UserConfigAndOverrides {
+    cluster.insert(role.insert(group))
+}
+
+pub trait Configuration {
+    type Configurable;
+
+    // TODO: Result needs file name?
+    // TODO: Not sure if I need the role_name here
+    // TODO: We need to pass in the existing config from parents to run validation checks and we should probably also pass in a "final" parameter or have another "finalize" method callback
+    //  one for each role group, one for each role and one for all of it...
+    fn compute_env(
+        &self,
+        resource: &Self::Configurable,
+        role_name: &str,
+    ) -> Result<HashMap<String, String>, ConfigError>;
+
+    fn compute_cli(
+        &self,
+        resource: &Self::Configurable,
+        role_name: &str,
+    ) -> Result<HashMap<String, String>, ConfigError>;
+
+    fn compute_properties(
+        &self,
+        resource: &Self::Configurable,
+        role_name: &str,
+        file: &str,
+    ) -> Result<HashMap<String, String>, ConfigError>;
 }
 
 // This deep map causes problems with clippy and rustfmt.

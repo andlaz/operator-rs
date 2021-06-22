@@ -131,6 +131,10 @@ pub struct RoleGroup<T> {
     pub selector: Option<LabelSelector>,
 }
 
+//HashMap<String, HashMap<String, HashMap<PropertyNameKind, HashMap<String, String>>>>;
+type ReconcileConfigResult = HashMap<Role, HashMap<RoleGroup, ProductConfiguration>>>;
+
+
 pub fn merge_user_config_and_overrides(role_name: &str, role: &Role<T>) -> UserConfigAndOverrides {
     let mut result = HashMap::new();
     let role_properties =
