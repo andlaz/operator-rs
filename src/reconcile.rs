@@ -4,6 +4,7 @@ use crate::k8s_utils::LabelOptionalValueMap;
 use crate::{conditions, controller_ref, finalizer, labels, pod_utils};
 
 use crate::conditions::ConditionStatus;
+use crate::config3::Configuration;
 use crate::k8s_utils::find_excess_pods;
 use k8s_openapi::api::core::v1::{Node, Pod};
 use k8s_openapi::apimachinery::pkg::apis::meta::v1::{Condition, LabelSelector};
@@ -390,6 +391,26 @@ where
         } else {
             Ok(ReconcileFunctionAction::Continue)
         }
+    }
+}
+
+impl<T> ReconciliationContext<T>
+where
+    T: Clone + Debug + DeserializeOwned + Resource<DynamicType = ()>,
+{
+    pub async fn get_config<C: Configuration>(&self, roles: HashMap<String, Role<C>) -> ReconcileResult<Error> {
+        // for each role,
+        //      for each group
+        //          get_product_config -> Files, Cli, Env
+        // intermediate step BTreeMap<Role, BTreeMap<Group, UserConfigAndOverrides>
+        // merge with product config: BTreeMap<Role, BTreeMap<Group, ProductConfiguration>
+        Ok(ReconcileFunctionAction::Continue)
+    }
+
+    pub async fn create_missing_pods(&self) -> ReconcileResult<Error> {
+        // Pod missing for role X group Y
+        // -> BTreeMap<Role, BTreeMap<Group, ProductConfiguration> retrieve -> ProductConfiguration
+        Ok(ReconcileFunctionAction::Continue)
     }
 }
 

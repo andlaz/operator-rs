@@ -132,34 +132,7 @@ pub struct RoleGroup<T> {
 }
 
 //HashMap<String, HashMap<String, HashMap<PropertyNameKind, HashMap<String, String>>>>;
-type ReconcileConfigResult = HashMap<Role, HashMap<RoleGroup, ProductConfiguration>>>;
-
-
-pub fn merge_user_config_and_overrides(role_name: &str, role: &Role<T>) -> UserConfigAndOverrides {
-    let mut result = HashMap::new();
-    let role_properties =
-        partition_properties_by_kind(resource, role_name, &role.config, property_kinds);
-    // for each role group ...
-    for (role_group_name, role_group) in &role.role_groups {
-        // ... compute the group properties ...
-        let role_group_properties = partition_properties_by_kind(
-            resource,
-            role_group_name,
-            &role_group.config,
-            property_kinds,
-        );
-        // ... and merge them with the role properties.
-        let mut role_properties_copy = role_properties.clone();
-        for (property_kind, properties) in role_group_properties {
-            role_properties_copy
-                .entry(property_kind)
-                .or_default()
-                .extend(properties);
-        }
-        result.insert(role_group_name.clone(), role_properties_copy);
-    }
-    result
-}
+//type ReconcileConfigResult = HashMap<Role, HashMap<RoleGroup, ProductConfiguration>>>;
 
 /// Return a map where the key corresponds to the role_group (e.g. "default", "10core10Gb") and
 /// a vector of nodes that fit the role_groups selector description.
