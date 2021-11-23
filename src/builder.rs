@@ -892,6 +892,7 @@ impl PodSecurityContextBuilder {
 #[derive(Clone, Default)]
 pub struct PodBuilder {
     containers: Vec<Container>,
+    dns_policy: Option<String>,
     host_network: Option<bool>,
     init_containers: Option<Vec<Container>>,
     metadata: Option<ObjectMeta>,
@@ -905,6 +906,11 @@ pub struct PodBuilder {
 impl PodBuilder {
     pub fn new() -> PodBuilder {
         PodBuilder::default()
+    }
+
+    pub fn dns_policy(&mut self, dns_policy: &str) -> &mut Self {
+        self.dns_policy = Some(dns_policy.to_owned());
+        self
     }
 
     pub fn host_network(&mut self, host_network: bool) -> &mut Self {
@@ -1014,6 +1020,7 @@ impl PodBuilder {
                 security_context: self.security_context.clone(),
                 tolerations: self.tolerations.clone(),
                 volumes: self.volumes.clone(),
+                dns_policy: self.dns_policy.clone(),
                 ..PodSpec::default()
             }),
             status: self.status.clone(),

@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- `dns_policy` added to `PodBuilder`.
+
 ## [0.4.0] - 2021-11-05
 
 
