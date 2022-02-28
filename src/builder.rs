@@ -1114,6 +1114,7 @@ pub struct PodBuilder {
     node_name: Option<String>,
     node_selector: Option<LabelSelector>,
     pod_affinity: Option<PodAffinity>,
+    restart_policy: Option<String>,
     status: Option<PodStatus>,
     security_context: Option<PodSecurityContext>,
     tolerations: Option<Vec<Toleration>>,
@@ -1124,6 +1125,11 @@ pub struct PodBuilder {
 impl PodBuilder {
     pub fn new() -> PodBuilder {
         PodBuilder::default()
+    }
+
+    pub fn restart_policy(&mut self, value: impl Into<String>) -> &mut Self {
+        self.restart_policy = Some(value.into());
+        self
     }
 
     pub fn service_account_name(&mut self, value: impl Into<String>) -> &mut Self {
@@ -1302,6 +1308,7 @@ impl PodBuilder {
             // In practice, this just causes a bunch of unused environment variables that may conflict with other uses,
             // such as https://github.com/stackabletech/spark-operator/pull/256.
             enable_service_links: Some(false),
+            restart_policy: self.restart_policy.clone(),
             service_account_name: self.service_account_name.clone(),
             ..PodSpec::default()
         }
@@ -1873,6 +1880,7 @@ mod tests {
             .add_container(container)
             .add_init_container(init_container)
             .node_name("worker-1.stackable.demo")
+            .restart_policy("Never")
             .add_volume(
                 VolumeBuilder::new("zk-worker-1")
                     .with_config_map("configmap")
@@ -1897,7 +1905,7 @@ mod tests {
                 .and_then(|containers| containers.get(0).as_ref().map(|c| c.name.clone())),
             Some("init_containername".to_string())
         );
-
+        assert_eq!(pod_spec.restart_policy, Some("Never".to_string()));
         assert_eq!(
             pod_spec.volumes.as_ref().and_then(|volumes| volumes
                 .get(0)
